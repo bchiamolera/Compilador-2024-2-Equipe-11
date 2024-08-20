@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package compilador.GUI;
 
 
@@ -15,10 +11,6 @@ import java.awt.Insets;
 import javax.swing.JTextArea;
 import javax.swing.border.AbstractBorder;
 
-/**
- *
- * @author Bernardo Chiamolera
- */
 public class NumberedBorder extends AbstractBorder  {
     private static final long serialVersionUID = -5089118025935944759L;
 
