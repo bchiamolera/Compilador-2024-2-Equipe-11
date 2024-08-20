@@ -103,11 +103,11 @@ public class GUI {
     private void CreateNewBtn() {
         String btnLabel = "Novo";
         String btnShortcut = "Ctrl+N";
-        String iconPath = "./icons/novo.png";
+        String iconPath = "/icons/novo.png";
         
         newBtn = new JButton(btnLabel + " [" + btnShortcut + "]");
             
-        ImageIcon icon = new ImageIcon(iconPath);
+        ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
         Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
@@ -131,11 +131,11 @@ public class GUI {
     private void CreateOpenBtn() {
         String btnLabel = "Abrir";
         String btnShortcut = "Ctrl+O";
-        String iconPath = "./icons/abrir.png";
+        String iconPath = "/icons/abrir.png";
         
         openBtn = new JButton(btnLabel + " [" + btnShortcut + "]");
             
-        ImageIcon icon = new ImageIcon(iconPath);
+        ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
         Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
@@ -159,11 +159,11 @@ public class GUI {
     private void CreateSaveBtn() {
         String btnLabel = "Salvar";
         String btnShortcut = "Ctrl+S";
-        String iconPath = "./icons/salvar.png";
+        String iconPath = "/icons/salvar.png";
         
         saveBtn = new JButton(btnLabel + " [" + btnShortcut + "]");
             
-        ImageIcon icon = new ImageIcon(iconPath);
+        ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
         Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
@@ -187,11 +187,11 @@ public class GUI {
     private void CreateCopyBtn() {
         String btnLabel = "Copiar";
         String btnShortcut = "Ctrl+C";
-        String iconPath = "./icons/copiar.png";
+        String iconPath = "/icons/copiar.png";
         
         copyBtn = new JButton(btnLabel + " [" + btnShortcut + "]");
             
-        ImageIcon icon = new ImageIcon(iconPath);
+        ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
         Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
@@ -215,11 +215,11 @@ public class GUI {
     private void CreatePasteBtn() {
         String btnLabel = "Colar";
         String btnShortcut = "Ctrl+V";
-        String iconPath = "./icons/colar.png";
+        String iconPath = "/icons/colar.png";
         
         pasteBtn = new JButton(btnLabel + " [" + btnShortcut + "]");
             
-        ImageIcon icon = new ImageIcon(iconPath);
+        ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
         Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
@@ -243,11 +243,11 @@ public class GUI {
     private void CreateCutBtn() {
         String btnLabel = "Recortar";
         String btnShortcut = "Ctrl+X";
-        String iconPath = "./icons/recortar.png";
+        String iconPath = "/icons/recortar.png";
         
         cutBtn = new JButton(btnLabel + " [" + btnShortcut + "]");
             
-        ImageIcon icon = new ImageIcon(iconPath);
+        ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
         Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
@@ -271,11 +271,11 @@ public class GUI {
     private void CreateCompileBtn() {
         String btnLabel = "Compilar";
         String btnShortcut = "F7";
-        String iconPath = "./icons/compilar.png";
+        String iconPath = "/icons/compilar.png";
         
         compileBtn = new JButton(btnLabel + " [" + btnShortcut + "]");
             
-        ImageIcon icon = new ImageIcon(iconPath);
+        ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
         Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
@@ -299,11 +299,11 @@ public class GUI {
     private void CreateTeamBtn() {
         String btnLabel = "Equipe";
         String btnShortcut = "F1";
-        String iconPath = "./icons/equipe.png";
+        String iconPath = "/icons/equipe.png";
         
         teamBtn = new JButton(btnLabel + " [" + btnShortcut + "]");
             
-        ImageIcon icon = new ImageIcon(iconPath);
+        ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
         Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
