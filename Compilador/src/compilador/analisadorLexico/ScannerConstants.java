@@ -1224,11 +1224,11 @@ public interface ScannerConstants
 
     String[] SCANNER_ERROR =
     {
-        "simbolo invalido1",
+        "simbolo invalido",
         "",
-        "",
-        "erro identificando cte_string",
-        "simbolo invalido2",
+        "palavra reservada invalida",
+        "constante_string invalida",
+        "simbolo invalido",
         "",
         "",
         "",
@@ -1254,7 +1254,7 @@ public interface ScannerConstants
         "",
         "erro identificando cte_float",
         "",
-        "Erro identificando <ignorar>",
+        "comentario de bloco invalido ou nao finalizado",
         "Identificador invalido",
         "",
         "",
@@ -1262,9 +1262,9 @@ public interface ScannerConstants
         "",
         "",
         "erro identificando cte_float",
-        "erro identificando <ignorar>",
+        "erro identificando <ignorar2>",
         "",
-        "erro identificando <ignorar>",
+        "erro identificando <ignorar3>",
         ""
     };
 
