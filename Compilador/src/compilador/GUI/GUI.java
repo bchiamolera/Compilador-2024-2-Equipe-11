@@ -8,6 +8,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GUI {
     
@@ -301,120 +303,40 @@ public class GUI {
                 int linha = 0;
                 int qtdCaracteres = textoDivido[linha].length();
                 
-                for(int j = 0; j < textoDivido.length; j++) {
-                    System.out.println(textoDivido[j]);
-                }
-                
                 try {
-                    Token t = null;
+                    List<Token> tokens = new ArrayList<>();
+                    Token t;
                     
-                    messageArea.setText("linha\tclasse\t\tlexema\n");
                     while ( (t = lexico.nextToken()) != null ) {
-                        String lexema = t.getLexeme();
-                        
-                        // Linhas
+                        // Contador de linhas
                         while (t.getPosition() > qtdCaracteres) {
                             linha++;
                             qtdCaracteres += textoDivido[linha].length() + 1;
                         }
                         
-                        String classe;
-                        // switch case classes
-                        switch (t.getId()) {
-                            case 2:
-                                classe = "palavra reservada";
-                                break;
-                            case 3:
-                                classe = "main";
-                                break;
-                            case 4:
-                                classe = "end";
-                                break;
-                            case 5:
-                                classe = "if";
-                                break;
-                            case 6:
-                                classe = "elif";
-                                break;
-                            case 7:
-                                classe = "else";
-                                break;
-                            case 8:
-                                classe = "false";
-                                break;
-                            case 9:
-                                classe = "true";
-                                break;
-                            case 10:
-                                classe = "read";
-                                break;
-                            case 11:
-                                classe = "write";
-                                break;
-                            case 12:
-                                classe = "writeln";
-                                break;
-                            case 13:
-                                classe = "repeat";
-                                break;
-                            case 14:
-                                classe = "until";
-                                break;
-                            case 15:
-                                classe = "while";
-                                break;
-                            case 16:
-                                classe = "id";
-                                break;
-                            case 17:
-                                classe = "constante inteira";
-                                break;
-                            case 18:
-                                classe = "constante float";
-                                break;
-                            case 19:
-                                classe = "constante string";
-                                break;
-                            case 20:
-                            case 21:
-                            case 22:
-                            case 23:
-                            case 24:
-                            case 25:
-                            case 26:
-                            case 27:
-                            case 28:
-                            case 29:
-                            case 30:
-                            case 31:
-                            case 32:
-                            case 33:
-                            case 34:
-                            case 35:
-                                classe = "caractere especial";
-                                break;
-                            default:
-                                classe = "token desconhecido";
-                                break;
-                        }
-                        
-                        messageArea.setText(messageArea.getText() + (linha + 1) + "\t" + classe + "\t\t" + lexema + "\n");
-
-                        // só escreve o lexema, necessário escrever t.getId, t.getPosition()
-
-                        // t.getId () - retorna o identificador da classe. Olhar Constants.java e adaptar, pois 
-                        // deve ser apresentada a classe por extenso
-                        // t.getPosition () - retorna a posição inicial do lexema no editor, necessário adaptar 
-                        // para mostrar a linha	
-
-                        // esse código apresenta os tokens enquanto não ocorrer erro
-                        // no entanto, os tokens devem ser apresentados SÓ se não ocorrer erro, necessário adaptar 
-                        // para atender o que foi solicitado		   
+                        tokens.add(new Token(t.getId(), t.getLexeme(), (linha + 1)));		   
                     }
-                    messageArea.setText(messageArea.getText() + "\nPrograma compilado com sucesso!");
+                    
+                    if (!tokens.isEmpty()) {
+                        messageArea.setText("linha\tclasse\t\tlexema\n");
+                        for (Token token : tokens) {
+                            messageArea.setText(messageArea.getText() + token.toString());
+                        }
+                        messageArea.setText(messageArea.getText() + "\n");
+                    }
+                    
+                    messageArea.setText(messageArea.getText() + "\tPrograma compilado com sucesso!");
                 }
-                catch (LexicalError erroLexico) {  // tratamento de erros
-                  messageArea.setText(erroLexico.getMessage() + " em " + erroLexico.getPosition());
+                catch (LexicalError erroLexico) {
+                    linha = 0;
+                    qtdCaracteres = textoDivido[linha].length();
+                    
+                    while (erroLexico.getPosition() > qtdCaracteres) {
+                            linha++;
+                            qtdCaracteres += textoDivido[linha].length() + 1;
+                        }
+                    
+                  messageArea.setText("Linha " + (linha + 1) + ": " + erroLexico.getMessage());
 
                   // e.getMessage() - retorna a mensagem de erro de SCANNER_ERRO (olhar ScannerConstants.java 
                   // e adaptar conforme o enunciado da parte 2)
