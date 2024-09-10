@@ -68,9 +68,11 @@ public class Lexico implements Constants
         {
             String lexeme = input.substring(start, end);
             token = lookupToken(token, lexeme);
+
             if (token == 2) {
-                throw new LexicalError(SCANNER_ERROR[token], start);
+                throw new LexicalError(SCANNER_ERROR[2], lexeme, start);
             }
+
             return new Token(token, lexeme, start);
         }
     }
@@ -88,11 +90,11 @@ public class Lexico implements Constants
                 return SCANNER_TABLE[half][1];
             else if (SCANNER_TABLE[half][0] < c)
                 start = half+1;
-            else //(SCANNER_TABLE[half][0] > c)
+            else  //(SCANNER_TABLE[half][0] > c)
                 end = half-1;
         }
 
-    return -1;
+        return -1;
     }
 
     private int tokenForState(int state)

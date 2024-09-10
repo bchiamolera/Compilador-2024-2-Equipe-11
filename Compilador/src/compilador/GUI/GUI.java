@@ -336,7 +336,7 @@ public class GUI {
                             qtdCaracteres += textoDivido[linha].length() + 1;
                         }
                     
-                  messageArea.setText("Linha " + (linha + 1) + ": " + erroLexico.getMessage());
+                  messageArea.setText("Linha " + (linha + 1) + ": " + erroLexico.getLexeme() + " " + erroLexico.getMessage());
 
                   // e.getMessage() - retorna a mensagem de erro de SCANNER_ERRO (olhar ScannerConstants.java 
                   // e adaptar conforme o enunciado da parte 2)
