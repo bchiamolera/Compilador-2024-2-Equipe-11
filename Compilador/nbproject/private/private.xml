@@ -5,12 +5,14 @@
         <group>
             <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/Token.java</file>
             <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/Constants.java</file>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/ScannerConstantsAntigo.java</file>
             <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/Compilador.java</file>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/Antigo.java</file>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/LexicalErrorAntigo.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/SyntaticError.java</file>
             <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/AnalysisError.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/Lexico.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/ScannerConstants.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/SemanticError.java</file>
             <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/GUI/GUI.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/LexicalError.java</file>
         </group>
     </open-files>
 </project-private>
