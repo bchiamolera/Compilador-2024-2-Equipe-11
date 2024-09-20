@@ -327,27 +327,37 @@ public class GUI {
                     
                     messageArea.setText(messageArea.getText() + "\tPrograma compilado com sucesso!");
                 }
-                catch (LexicalError erroLexico) {
-                    linha = 0;
-                    qtdCaracteres = textoDivido[linha].length();
-                    
-                    while (erroLexico.getPosition() > qtdCaracteres) {
-                            linha++;
-                            qtdCaracteres += textoDivido[linha].length() + 1;
-                        }
-                    
-                  messageArea.setText("Linha " + (linha + 1) + ": " + erroLexico.getLexeme() + " " + erroLexico.getMessage());
+        catch (LexicalError erroLexico) {
+            linha = 0;
+            qtdCaracteres = textoDivido[linha].length();
 
-                  // e.getMessage() - retorna a mensagem de erro de SCANNER_ERRO (olhar ScannerConstants.java 
-                  // e adaptar conforme o enunciado da parte 2)
-                  // e.getPosition() - retorna a posição inicial do erro, tem que adaptar para mostrar a 
-                  // linha  
-                } 
+            while (erroLexico.getPosition() > qtdCaracteres) {
+                linha++;
+                qtdCaracteres += textoDivido[linha].length() + 1;
             }
-        });
-        
-        toolBar.add(compileBtn);
-    }
+
+            
+            int posErro = erroLexico.getPosition();
+            StringBuilder lexemaInvalido = new StringBuilder();
+
+            
+            while (posErro < editor.getText().length()) {
+                char currentChar = editor.getText().charAt(posErro);
+                if (Character.isWhitespace(currentChar)) {
+                    break;  
+                }
+                lexemaInvalido.append(currentChar);
+                posErro++;
+            }
+
+            messageArea.setText("Linha " + (linha + 1) + ": Símbolo '" + lexemaInvalido.toString() + "' " + erroLexico.getMessage());
+        }
+
+                }
+                });
+
+                toolBar.add(compileBtn);
+            }
     
     private void CreateTeamBtn() {
         String btnLabel = "Equipe";
