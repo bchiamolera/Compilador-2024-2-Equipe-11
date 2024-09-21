@@ -1,10 +1,15 @@
 package compilador.GUI;
 
+import compilador.analisadorLexico.LexicalError;
+import compilador.analisadorLexico.Lexico;
+import compilador.analisadorLexico.Token;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GUI {
     
@@ -289,12 +294,70 @@ public class GUI {
         compileBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                messageArea.setText("Compilação de programas ainda não foi implementada.\n");
+                messageArea.setText("");
+                
+                Lexico lexico = new Lexico();
+                lexico.setInput(editor.getText());
+                
+                String[] textoDivido = editor.getText().split("\n");
+                int linha = 0;
+                int qtdCaracteres = textoDivido[linha].length();
+                
+                try {
+                    List<Token> tokens = new ArrayList<>();
+                    Token t;
+                    
+                    while ( (t = lexico.nextToken()) != null ) {
+                        // Contador de linhas
+                        while (t.getPosition() > qtdCaracteres) {
+                            linha++;
+                            qtdCaracteres += textoDivido[linha].length() + 1;
+                        }
+                        
+                        tokens.add(new Token(t.getId(), t.getLexeme(), (linha + 1)));		   
+                    }
+                    
+                    if (!tokens.isEmpty()) {
+                        messageArea.setText("linha\tclasse\t\tlexema\n");
+                        for (Token token : tokens) {
+                            messageArea.setText(messageArea.getText() + token.toString());
+                        }
+                        messageArea.setText(messageArea.getText() + "\n");
+                    }
+                    
+                    messageArea.setText(messageArea.getText() + "\tPrograma compilado com sucesso!");
+                }
+        catch (LexicalError erroLexico) {
+            linha = 0;
+            qtdCaracteres = textoDivido[linha].length();
+
+            while (erroLexico.getPosition() > qtdCaracteres) {
+                linha++;
+                qtdCaracteres += textoDivido[linha].length() + 1;
             }
-        });
-        
-        toolBar.add(compileBtn);
-    }
+
+            
+            int posErro = erroLexico.getPosition();
+            StringBuilder lexemaInvalido = new StringBuilder();
+
+            
+            while (posErro < editor.getText().length()) {
+                char currentChar = editor.getText().charAt(posErro);
+                if (Character.isWhitespace(currentChar)) {
+                    break;  
+                }
+                lexemaInvalido.append(currentChar);
+                posErro++;
+            }
+
+            messageArea.setText("Linha " + (linha + 1) + ": Símbolo '" + lexemaInvalido.toString() + "' " + erroLexico.getMessage());
+        }
+
+                }
+                });
+
+                toolBar.add(compileBtn);
+            }
     
     private void CreateTeamBtn() {
         String btnLabel = "Equipe";
