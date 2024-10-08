@@ -1,0 +1,184 @@
+#Options
+GenerateScanner = true
+GenerateParser = true
+Language = Java
+ScannerName = Lexico
+ParserName = Sintatico
+SemanticName = Semantico
+ScannerCaseSensitive = true
+ScannerTable = Full
+Input = Stream
+Parser = LL
+#RegularDefinitions
+min: [a-z]
+mai: [A-Z]
+digito: [0-9]
+letra: {min} | {mai}
+prefixo: "i_" | "t_" | "b_" | "s_"
+#Tokens
+// Bernardo e Gabriel
+
+// reconhecer e ignorar comentarios
+// bloco
+:! ">@"\n[^@]*\n"@<"
+
+
+// especificar palavras reservadas da linguagem
+// main end if elif else false true read write writeln repeat until while
+
+palavra_reservada: {min} ({letra})*
+
+main = palavra_reservada: "main"
+end = palavra_reservada: "end"
+if = palavra_reservada: "if"
+elif = palavra_reservada: "elif"
+else = palavra_reservada: "else"
+false = palavra_reservada: "false"
+true = palavra_reservada: "true"
+read = palavra_reservada: "read"
+write = palavra_reservada: "write"
+writeln = palavra_reservada: "writeln"
+repeat = palavra_reservada: "repeat"
+until = palavra_reservada: "until"
+while = palavra_reservada: "while"
+
+// especificar os demais tokens
+id:! {prefixo} ({min} {mai}? | {mai}) (({min} | {digito})+ {mai}?)*
+
+cte_int: [1-9] {digito}* | 0
+
+cte_float: ([1-9] {digito}* | 0) , {digito} ({digito}* [1-9])?
+
+cte_string: \" ([^%\"\n] | %x)* \"
+
+
+// especificar simbolos especiais
+// && || ! == != < > + - * / , ; = ( )
+
+"&&"
+"||"
+"!"
+"=="
+"!="
+"<"
+">"
+"+"
+"-"
+"*"
+"/"
+","
+";"
+"="
+"("
+")"
+
+
+// reconhecer e ignorar caracteres de formatacao
+
+:[\n\t\s\r]
+#NonTerminals
+<fg_programa>
+
+<lista_de_instrucoes>
+<lista_de_instrucoes1>
+<instrucao>
+<instrucao1>
+<comando>
+<lista_de_identificadores>
+<lista_de_identificadores1>
+<cd_atribuicao>
+<cd_entrada>
+<cd_saida>
+<cd_selecao>
+<cd_repeticao>
+<cd_repeticao1>
+<expressao>
+<expressao1>
+<lista_de_entrada>
+<lista_de_entrada1>
+<opcional>
+<lista_de_expressao>
+<lista_de_expressao1>
+<elif>
+<else>
+<elemento>
+<relacional>
+<relacional1>
+<operador_relacional>
+<aritmetica>
+<aritmetica1>
+<termo>
+<termo1>
+<fator>
+
+<lista_de_comandos>
+<lista_de_comandos1>
+#Grammar
+<fg_programa> ::= main <lista_de_instrucoes> end	;
+
+<lista_de_instrucoes> ::= <instrucao> ";" <lista_de_instrucoes1>	;
+
+<lista_de_instrucoes1> ::= î | <lista_de_instrucoes>		;
+
+<instrucao> ::= <lista_de_identificadores> <instrucao1> | <comando>	;
+
+<instrucao1> ::= î | "=" <expressao>	;
+
+<lista_de_identificadores> ::= id <lista_de_identificadores1>		;
+
+<lista_de_identificadores1> ::= î | "," <lista_de_identificadores>	;
+
+<comando> ::= <cd_entrada> | <cd_saida> | <cd_selecao> | <cd_repeticao>	;
+
+<cd_entrada> ::= read "(" <lista_de_entrada> ")"	;
+
+<lista_de_entrada> ::= <opcional> id <lista_de_entrada1>	;
+
+<lista_de_entrada1> ::= î | "," <lista_de_entrada>	;
+
+<opcional> ::= î | cte_string ","	;
+
+<cd_saida> ::= write "(" <lista_de_expressao> ")" | writeln "(" <lista_de_expressao> ")"	;
+
+<lista_de_expressao> ::= <expressao>  <lista_de_expressao1>	;
+
+<lista_de_expressao1> ::= î | "," <lista_de_expressao>	;
+
+<cd_selecao> ::= if <expressao> <lista_de_comandos> <elif> <else> end		;
+
+<cd_atribuicao> ::= <lista_de_identificadores> "=" <expressao>		;
+
+<lista_de_comandos> ::= <comando> ";" <lista_de_comandos1> | <cd_atribuicao> ";" <lista_de_comandos1>	;
+
+<lista_de_comandos1> ::= î | <lista_de_comandos>	;
+
+<elif> ::= î |  elif <expressao> <lista_de_comandos> <elif>	;
+
+<else> ::= î | else <lista_de_comandos>		;
+
+<cd_repeticao> ::= repeat <lista_de_comandos> <cd_repeticao1>	;
+
+<cd_repeticao1> ::= while <expressao> | until <expressao>	;
+
+<expressao> ::= <elemento> <expressao1> ; 
+
+<expressao1> ::= î | "&&" <elemento> <expressao1> | "||" <elemento> <expressao1> ; 
+
+<elemento> ::= <relacional> | true | false | "!" <elemento> ; 
+
+<relacional> ::= <aritmetica> <relacional1> ; 
+
+<relacional1> ::= î | <operador_relacional> <aritmetica> ; 
+
+<operador_relacional>::= "==" | "!=" | "<" | ">" ; 
+
+<aritmetica> ::= <termo> <aritmetica1> ; 
+
+<aritmetica1> ::= î | "+" <termo> <aritmetica1> | "-" <termo> <aritmetica1> ; 
+
+<termo> ::= <fator> <termo1> ; 
+
+<termo1> ::= î | "*" <fator> <termo1> | "/" <fator> <termo1> ; 
+
+<fator> ::= id | cte_int | cte_float | cte_string | "(" <expressao> ")" | "+" <fator> | "-" <fator> ; 
+

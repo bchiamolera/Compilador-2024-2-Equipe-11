@@ -3,16 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/Token.java</file>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/Constants.java</file>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/Compilador.java</file>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/SyntaticError.java</file>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/AnalysisError.java</file>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/Lexico.java</file>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/ScannerConstants.java</file>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/SemanticError.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisador/SyntaticError.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisador/AnalysisError.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisador/Constants.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisador/SemanticError.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisador/Sintatico.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisador/ParserConstants.java</file>
             <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/GUI/GUI.java</file>
-            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisadorLexico/LexicalError.java</file>
+            <file>file:/C:/Users/Bernardo%20Chiamolera/Documents/GitHub/compilador-2024-2-equipe-11/Compilador/src/compilador/analisador/ScannerConstants.java</file>
         </group>
     </open-files>
 </project-private>

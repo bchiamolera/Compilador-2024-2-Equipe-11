@@ -1,4 +1,4 @@
-package compilador.analisadorLexico;
+package compilador.analisador;
 
 public class Token
 {

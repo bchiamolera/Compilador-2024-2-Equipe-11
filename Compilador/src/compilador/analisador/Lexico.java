@@ -1,4 +1,4 @@
-package compilador.analisadorLexico;
+package compilador.analisador;
 
 public class Lexico implements Constants
 {
@@ -55,9 +55,10 @@ public class Lexico implements Constants
                 }
             }
         }
-        if (endState < 0 || (endState != state && tokenForState(lastState) == -2))
-            throw new LexicalError(SCANNER_ERROR[lastState], start);
-
+        if (endState < 0 || (endState != state && tokenForState(lastState) == -2)) {
+            throw new LexicalError(19,SCANNER_ERROR[lastState], start);
+        }
+        
         position = end;
 
         int token = tokenForState(endState);
@@ -72,7 +73,6 @@ public class Lexico implements Constants
             if (token == 2) {
                 throw new LexicalError(SCANNER_ERROR[2], lexeme, start);
             }
-
             return new Token(token, lexeme, start);
         }
     }
