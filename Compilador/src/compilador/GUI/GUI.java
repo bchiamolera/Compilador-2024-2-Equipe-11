@@ -351,8 +351,20 @@ public class GUI {
                     }
                     
                     StringBuilder lexemaInvalido = new StringBuilder();
+                    boolean maybeIsCteString = false;
+                    boolean isCteString = false;
+                    
                     while (posErro < editor.getText().length()) {
                         char currentChar = editor.getText().charAt(posErro);
+                        if (currentChar == '"') {
+                            if (maybeIsCteString) {
+                                isCteString = true;
+                                break;
+                            }
+                            else {
+                                maybeIsCteString = true;
+                            }
+                        }
                         if (Character.isWhitespace(currentChar)) {
                             break;
                         }
@@ -360,6 +372,10 @@ public class GUI {
                         posErro++;
                     }
                     
+                    if (isCteString) {
+                        lexemaInvalido = new StringBuilder();
+                        lexemaInvalido.append("constante_string");
+                    }
                     if (erroSintatico.IsEOF()) {
                         lexemaInvalido = new StringBuilder();
                         lexemaInvalido.append("EOF");
