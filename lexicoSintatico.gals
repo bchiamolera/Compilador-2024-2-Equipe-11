@@ -5,16 +5,17 @@ Language = Java
 ScannerName = Lexico
 ParserName = Sintatico
 SemanticName = Semantico
+Package = compilador
 ScannerCaseSensitive = true
-ScannerTable = Full
-Input = Stream
+ScannerTable = Compact
+Input = String
 Parser = LL
 #RegularDefinitions
 min: [a-z]
 mai: [A-Z]
 digito: [0-9]
 letra: {min} | {mai}
-prefixo: "i_" | "t_" | "b_" | "s_"
+prefixo: "i_" | "f_" | "b_" | "s_"
 #Tokens
 // Bernardo e Gabriel
 
@@ -114,71 +115,53 @@ cte_string: \" ([^%\"\n] | %x)* \"
 <lista_de_comandos>
 <lista_de_comandos1>
 #Grammar
-<fg_programa> ::= main <lista_de_instrucoes> end	;
+<fg_programa> ::= #100 main <lista_de_instrucoes> end #101	;
 
 <lista_de_instrucoes> ::= <instrucao> ";" <lista_de_instrucoes1>	;
-
 <lista_de_instrucoes1> ::= î | <lista_de_instrucoes>		;
 
 <instrucao> ::= <lista_de_identificadores> <instrucao1> | <comando>	;
+<instrucao1> ::= #102 î | "=" <expressao> #103	;
 
-<instrucao1> ::= î | "=" <expressao>	;
-
-<lista_de_identificadores> ::= id <lista_de_identificadores1>		;
-
+<lista_de_identificadores> ::= id #104 <lista_de_identificadores1>		;
 <lista_de_identificadores1> ::= î | "," <lista_de_identificadores>	;
 
 <comando> ::= <cd_entrada> | <cd_saida> | <cd_selecao> | <cd_repeticao>	;
 
 <cd_entrada> ::= read "(" <lista_de_entrada> ")"	;
-
-<lista_de_entrada> ::= <opcional> id <lista_de_entrada1>	;
-
+<lista_de_entrada> ::= <opcional> id #105 <lista_de_entrada1>	;
 <lista_de_entrada1> ::= î | "," <lista_de_entrada>	;
+<opcional> ::= î | cte_string #106 ","	;
 
-<opcional> ::= î | cte_string ","	;
-
-<cd_saida> ::= write "(" <lista_de_expressao> ")" | writeln "(" <lista_de_expressao> ")"	;
-
-<lista_de_expressao> ::= <expressao>  <lista_de_expressao1>	;
-
+<cd_saida> ::= write "(" <lista_de_expressao> ")" | writeln "(" <lista_de_expressao> ")" #107	;
+<lista_de_expressao> ::= <expressao> #108 <lista_de_expressao1>	;
 <lista_de_expressao1> ::= î | "," <lista_de_expressao>	;
 
-<cd_selecao> ::= if <expressao> <lista_de_comandos> <elif> <else> end		;
+<cd_selecao> ::= if <expressao> #109 <lista_de_comandos> <elif> #110 <else> #111 end		;
 
-<cd_atribuicao> ::= <lista_de_identificadores> "=" <expressao>		;
+<cd_atribuicao> ::= <lista_de_identificadores> "=" <expressao>	#103	;
 
 <lista_de_comandos> ::= <comando> ";" <lista_de_comandos1> | <cd_atribuicao> ";" <lista_de_comandos1>	;
-
 <lista_de_comandos1> ::= î | <lista_de_comandos>	;
 
-<elif> ::= î |  elif <expressao> <lista_de_comandos> <elif>	;
-
+<elif> ::= î | #110 elif <expressao> #112 <lista_de_comandos> <elif>	;
 <else> ::= î | else <lista_de_comandos>		;
 
-<cd_repeticao> ::= repeat <lista_de_comandos> <cd_repeticao1>	;
-
-<cd_repeticao1> ::= while <expressao> | until <expressao>	;
+<cd_repeticao> ::= #113 repeat <lista_de_comandos> <cd_repeticao1>	;
+<cd_repeticao1> ::= while <expressao> #114 | until <expressao> #115	;
 
 <expressao> ::= <elemento> <expressao1> ; 
+<expressao1> ::= î | "&&" <elemento> #116 <expressao1> | "||" <elemento> #117 <expressao1>	; 
+<elemento> ::= <relacional> | true #118 | false #119 | "!" <elemento> #120	; 
 
-<expressao1> ::= î | "&&" <elemento> <expressao1> | "||" <elemento> <expressao1> ; 
-
-<elemento> ::= <relacional> | true | false | "!" <elemento> ; 
-
-<relacional> ::= <aritmetica> <relacional1> ; 
-
-<relacional1> ::= î | <operador_relacional> <aritmetica> ; 
-
+<relacional> ::= <aritmetica> <relacional1>	; 
+<relacional1> ::= î | <operador_relacional> #121 <aritmetica> #122	; 
 <operador_relacional>::= "==" | "!=" | "<" | ">" ; 
 
 <aritmetica> ::= <termo> <aritmetica1> ; 
-
-<aritmetica1> ::= î | "+" <termo> <aritmetica1> | "-" <termo> <aritmetica1> ; 
+<aritmetica1> ::= î | "+" <termo> #123 <aritmetica1> | "-" <termo> #124 <aritmetica1> ; 
 
 <termo> ::= <fator> <termo1> ; 
+<termo1> ::= î | "*" <fator> #125 <termo1> | "/" <fator> #126 <termo1>	;
 
-<termo1> ::= î | "*" <fator> <termo1> | "/" <fator> <termo1> ; 
-
-<fator> ::= id | cte_int | cte_float | cte_string | "(" <expressao> ")" | "+" <fator> | "-" <fator> ; 
-
+<fator> ::= id #127 | cte_int #128 | cte_float #129 | cte_string #130 | "(" <expressao> ")" | "+" <fator> | "-" <fator> #131	; 
