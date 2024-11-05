@@ -176,7 +176,7 @@ public interface ParserConstants
         "esperado , )", //<lista_de_entrada1> inv�lido",
         "esperado id constante_string", //<opcional> inv�lido",
         "esperado expressão", // <lista_de_expressao> inv�lido",
-        "esperado expressão", // <lista_de_expressao1> inv�lido",
+        "esperado , )", // <lista_de_expressao1> inv�lido",
         "esperado end elif else", //<elif> inv�lido",
         "esperado end else", //<else> inv�lido",
         "esperado expressão", // <elemento> inv�lido",

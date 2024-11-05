@@ -1247,7 +1247,7 @@ public interface ScannerConstants
         "",
         "",
         "",
-        "erro identificando \"||\"",
+        "simbolo invalido",
         "",
         "",
         "constante_string invalida",
