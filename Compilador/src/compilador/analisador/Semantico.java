@@ -148,7 +148,70 @@ public class Semantico implements Constants {
                 + "}\n"
                 + "}";
     }
+    
+    /*
+    ação #102: para cada identificador da lista_identificadores:
+    verificar se o identificador foi declarado, ou seja, se está na tabela_simbolos;
+    em caso positivo, encerrar a execução e apontar erro semântico, indicando a linha e apresentando a mensagem
+    token.getLexeme já declarado (por exemplo: i_area já declarado);
+    em caso negativo:
+    (a) inserir o identificador na tabela_simbolos;
+    (b) gerar código objeto para declarar o identificador (código: .locals (tipo identificador)), onde o tipo
+     do identificador é determinado pelo prefixo, sendo: int64 para i_, float64 para f_, string para
+     s_, bool para b_
+    limpar a lista_identificadore, após o processamento. 
 
+     */
+    
+    /*
+    ação #103:
+         desempilhar o tipo da <expressão> da pilha_tipos;
+         se <expressão> for do tipo int64, primeiramente deve ser convertida para int64 (código: conv.i8);
+         gerar o código objeto dup n vezes, onde n é igual a quantidade de identificadores da lista_identificadores
+        menos 1;
+         para cada identificador da lista_identificadores:
+        (a) verificar se o identificador foi declarado, ou seja, se está na tabela_simbolos;
+        (b) em caso negativo, encerrar a execução e apontar erro semântico, indicando a linha e apresentando a
+        mensagem identificador não declarado (por exemplo: i_area não declarado);
+        (c) em caso positivo, gerar código objeto para armazenar o valor da <expressão> em identificador (código:
+        stloc identificador), lembrando que se <expressão> for do tipo int64, primeiramente deve ser convertida
+        para int64 (código: conv.i8). Assumir que o valor da <expressão> é de tipo compatível com o
+        identificador;
+         limpar a lista_identificadores, após o processamento. 
+
+     */
+    
+    /*
+    ação #104:
+         guardar identificador (token.getLexeme) na lista_identificadores para uso posterior. 
+
+     */
+    
+    /*
+    a ação #105: para identificador:
+         verificar se o identificador (token.getLexeme) foi declarado, ou seja, se está na tabela_simbolos;
+         em caso negativo, encerrar a execução e apontar erro semântico, indicando a linha e apresentando a mensagem
+        token.getLexeme não declarado (por exemplo: i_area não declarado);
+         em caso positivo:
+        (a) gerar código objeto para ler (da entrada padrão) um valor do tipo de identificador, onde o tipo do
+        identificador é determinado pelo prefixo, sendo: int64 para i_, float64 para f_, string para s_,
+        bool para b_ (verificar no anexo: instruções MSIL ou na lista no. 6 ou lista no. 7);
+        (b) gerar código objeto para armazenar o valor lido em identificador (código: stloc token.getLexeme).
+     */
+    
+    /*
+    a ação #106:
+         gerar código objeto para carregar o valor da constante_string (verificar no anexo: instruções MSIL ou na
+        lista no. 6 ou lista no. 7);
+         gerar código objeto para escrever a constante (código: call void [mscorlib]System.Console::Write
+        (string)); 
+     */
+    
+        /*
+    ação #107:
+         gerar código objeto para escrever quebra de linha na saída padrão. 
+     */
+    
     /*
     ação #108:
     - desempilhar um tipo da pilha_tipos;
@@ -168,14 +231,113 @@ public class Semantico implements Constants {
             
         }
     }
+    
+        /*
+    ação #109:
+         criar um rótulo (novo_rotulo1) para rotular a primeira instrução após o end;
+         empilhar o rótulo (novo_rotulo1) na pilha_rotulos para resolução posterior;
+         criar um rótulo (novo_rotulo2);
+         gerar código objeto para desviar os comandos da cláusula if caso o resultado da avaliação da <expressão> for
+        false (código: brfalse novo_rotulo2);
+         empilhar o rótulo (novo_rotulo2) na pilha_rotulos para resolução posterior
+             */
 
+            /*
+            para os operadores aritméticos binários (ações #123, #124, #125, #126):
+            - desempilhar dois tipos da pilha_tipos, empilhar o tipo resultante da operação conforme indicado na TABELA DE
+            TIPOS;
+            - gerar código objeto para efetuar a operação correspondente em IL (código: add, sub, mul ou div,
+            respectivamente).
+     */
+    
+        /*
+    ação #110:
+         desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado2);
+         desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado1);
+         gerar código objeto para desviar para a primeira instrução após o end (código: br rotulo_desempilhado1);
+         empilhar o rótulo (rotulo_desempilhado1) na pilha_rotulos para resolução posterior;
+         rotular a próxima instrução do código objeto com o rótulo desempilhado (código: rotulo_desempilhado2:). 
+     */
+    
+        /*
+    ação #111:
+         desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado);
+         rotular a próxima instrução do código objeto com o rótulo desempilhado (código: rotulo_desempilhado:).
+     */
+    
+       /*
+   ação #112:
+         criar um rótulo (novo_rotulo); 
+     */
+    
+    /* 
+    ação #113 (antes do repeat) deve:
+         criar um rótulo (novo_rotulo);
+         rotular a próxima instrução do código objeto com o rótulo criado (código: novo_rotulo:).
+         empilhar o rótulo (novo_rotulo) na pilha_rotulos para resolução posterior. 
+    */
+    
+    /*
+    ação #114 (após <expressão>) deve:
+         desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado);
+         gerar código objeto para desviar para o primeiro comando do comando <repetição> caso o resultado da
+        avaliação da <expressão> for true (código: brtrue rotulo_desempilhado). 
+
+    */
+    
+    /*
+    ação #115 (após <expressão>) deve:
+         desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado);
+         gerar código objeto para desviar para o primeiro comando do comando <repetição> caso o resultado da
+        avaliação da <expressão> for false (código: brfalse rotulo_desempilhado). 
+    */
+    
+    /*
+    para os operadores lógicos binários (ações #116, #117):
+         desempilhar dois tipos da pilha_tipos, empilhar o tipo resultante da operação conforme indicado na TABELA DE
+        TIPOS;
+         gerar código objeto para efetuar a operação correspondente em IL (verificar no anexo: instruções MSIL ou na
+        lista no. 6 ou lista no. 7). 
+    */
+    
+    /*
+    para true (ação #118):
+         empilhar na pilha_tipos o tipo correspondente conforme indicado na TABELA DE TIPOS;
+         gerar código objeto para carregar o valor da constante (código: ldc.i4.1). 
+    */
+    
+    /*
+    para false (ação #119):
+         empilhar na pilha_tipos o tipo correspondente conforme indicado na TABELA DE TIPOS;
+         gerar código objeto para carregar o valor da constante (código: ldc.i4.0). 
+
+    */
+    
+    /*
+    para o operador lógico unário "!" (ação #120):
+         gerar código objeto para efetuar a operação correspondente em IL (verificar no anexo: instruções MSIL ou na
+        lista no. 6 ou lista no. 7). 
+    */
+    
+    /*
+    ação #121:
+         guardar em operador_relacional (token.getLexeme) o operador relacional reconhecido pela ação;
+    */
+    
+    /*
+    ação #122:
+         desempilhar dois tipos da pilha_tipos, empilhar o tipo resultante da operação conforme indicado na TABELA DE
+        TIPOS;
+         gerar código objeto para efetuar a operação correspondente em IL conforme o operador relacional armazenado
+        em operador_relacional (verificar no anexo: instruções MSIL ou na lista no. 6 ou lista no. 7, verificar em AVA
+        > Links e ferramentas > TOMAZELLI, Giancarlo. ...). 
+    */
+    
     /*
     para os operadores aritméticos binários (ações #123, #124, #125, #126):
-    - desempilhar dois tipos da pilha_tipos, empilhar o tipo resultante da operação conforme indicado na TABELA DE
-    TIPOS;
-    - gerar código objeto para efetuar a operação correspondente em IL (código: add, sub, mul ou div,
-    respectivamente).
-     */
+         desempilhar dois tipos da pilha_tipos, empilhar o tipo resultante da operação conforme indicado na TABELA DE
+        TIPOS; 
+    */
     private void acao_semantica123() {
         try {
             String tipo1 = this.pilha_tipos.pop();
@@ -192,6 +354,18 @@ public class Semantico implements Constants {
 
         }
     }
+    
+    /*
+    A semântica de identificador (ação #127) em <expressão> é a seguinte:
+         verificar se o identificador (token.getLexeme) foi declarado, ou seja, se está na tabela_simbolos;
+         em caso negativo, encerrar a execução e apontar erro semântico, indicando a linha e apresentando a mensagem
+        token.getLexeme não declarado (por exemplo: i_area não declarado);
+         em caso positivo:
+        (a) empilhar na pilha_tipos o tipo correspondente conforme indicado na TABELA DE TIPOS;
+        (b) gerar código objeto para carregar o valor armazenado em identificador (código: ldloc token.getLexeme);
+        (c) se identificador for do tipo int64, gerar código objeto para converter o valor para float64 (código:
+        conv.r8). 
+    */
 
     /*
     para constante_int (ação #128):
@@ -216,4 +390,17 @@ public class Semantico implements Constants {
         this.pilha_tipos.push("float64");
         this.codigo_fonte += "ldc.r8 " + token.getLexeme().replace(',', '.') + "\n";
     }
+    
+    /*
+    para constante_string (ação #130):
+         empilhar na pilha_tipos o tipo correspondente conforme indicado na TABELA DE TIPOS;
+         gerar código objeto para carregar o valor da constante em IL (verificar no anexo: instruções MSIL ou na lista
+        no. 6 ou lista no. 7). 
+    */
+    
+    /*
+    para o operador aritmético unário "-" (ação #131):
+         gerar código objeto para efetuar a operação correspondente em IL (verificar no anexo: instruções MSIL ou na
+        lista no. 6 ou lista no. 7). 
+    */
 }
