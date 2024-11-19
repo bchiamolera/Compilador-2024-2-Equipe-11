@@ -79,10 +79,13 @@ public class Semantico implements Constants {
             case 112:
                 break;
             case 113:
+                acao_semantica113();
                 break;
             case 114:
+                acao_semantica114();
                 break;
             case 115:
+                acao_semantica115();
                 break;
             case 116:
                 break;
@@ -250,6 +253,18 @@ public class Semantico implements Constants {
             respectivamente).
      */
     
+    private void acao_semantica109() {
+    String novoRotulo1 = "rotulo_" + pilha_rotulos.size();
+    String novoRotulo2 = "rotulo_" + (pilha_rotulos.size() + 1);
+
+    pilha_rotulos.push(novoRotulo1);
+
+    codigo_fonte += "brfalse " + novoRotulo2 + "\n";
+
+    pilha_rotulos.push(novoRotulo2);
+}
+
+    
         /*
     ação #110:
          desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado2);
@@ -259,17 +274,46 @@ public class Semantico implements Constants {
          rotular a próxima instrução do código objeto com o rótulo desempilhado (código: rotulo_desempilhado2:). 
      */
     
+    private void acao_semantica110() {
+    if (!pilha_rotulos.isEmpty()) {
+        
+        String rotuloAtual = (String) pilha_rotulos.pop();
+
+        codigo_fonte += rotuloAtual + ":\n";
+    } else {
+        throw new RuntimeException("Erro semântico: Pilha de rótulos está vazia ao tentar resolver o rótulo.");
+    }
+}
+
+    
         /*
     ação #111:
          desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado);
          rotular a próxima instrução do código objeto com o rótulo desempilhado (código: rotulo_desempilhado:).
      */
     
+    private void acao_semantica111() {
+    if (!pilha_rotulos.isEmpty()) {
+        String rotuloDesempilhado = (String) pilha_rotulos.pop();
+
+        codigo_fonte += rotuloDesempilhado + ":\n";
+    } else {
+        throw new RuntimeException("Erro semântico: Tentativa de desempilhar rótulo de uma pilha vazia.");
+    }
+}
+
+    
        /*
    ação #112:
          criar um rótulo (novo_rotulo); 
      */
     
+    private void acao_semantica112() {
+    String novoRotulo = "rotulo_" + pilha_rotulos.size();
+    
+    pilha_rotulos.push(novoRotulo);
+}
+   
     /* 
     ação #113 (antes do repeat) deve:
          criar um rótulo (novo_rotulo);
