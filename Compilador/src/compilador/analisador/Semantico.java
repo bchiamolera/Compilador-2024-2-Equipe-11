@@ -277,6 +277,14 @@ public class Semantico implements Constants {
          empilhar o rótulo (novo_rotulo) na pilha_rotulos para resolução posterior. 
     */
     
+    private void acao_semantica113() {
+    String novoRotulo = "rotulo_" + pilha_rotulos.size();
+    
+    codigo_fonte += novoRotulo + ":\n";
+    
+    pilha_rotulos.push(novoRotulo);
+}
+    
     /*
     ação #114 (após <expressão>) deve:
          desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado);
@@ -285,12 +293,31 @@ public class Semantico implements Constants {
 
     */
     
+    private void acao_semantica114() {
+    if (!pilha_rotulos.isEmpty()) {
+        String rotuloDesempilhado = (String) pilha_rotulos.pop();
+        codigo_fonte += "brtrue " + rotuloDesempilhado + "\n";
+    } else {
+        System.out.println("Erro semântico: pilha de rótulos vazia ao executar a ação 114.");
+    }
+}
+    
     /*
     ação #115 (após <expressão>) deve:
          desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado);
          gerar código objeto para desviar para o primeiro comando do comando <repetição> caso o resultado da
         avaliação da <expressão> for false (código: brfalse rotulo_desempilhado). 
     */
+    
+    private void acao_semantica115() {
+    if (!pilha_rotulos.isEmpty()) {
+        String rotuloDesempilhado = (String) pilha_rotulos.pop();
+        
+        codigo_fonte += "brfalse " + rotuloDesempilhado + "\n";
+    } else {
+        System.out.println("Erro semântico: pilha de rótulos vazia ao executar a ação 115.");
+    }
+}
     
     /*
     para os operadores lógicos binários (ações #116, #117):
