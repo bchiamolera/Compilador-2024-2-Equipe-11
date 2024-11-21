@@ -62,8 +62,10 @@ public class Semantico implements Constants {
             case 104:
                 break;
             case 105:
+                acao_semantica105(token);
                 break;
             case 106:
+                acao_semantica106();
                 break;
             case 107:
                 break;
@@ -71,12 +73,16 @@ public class Semantico implements Constants {
                 acao_semantica108();
                 break;
             case 109:
+                acao_semantica109();
                 break;
             case 110:
+                acao_semantica110();
                 break;
             case 111:
+                acao_semantica111();
                 break;
             case 112:
+                acao_semantica112();
                 break;
             case 113:
                 acao_semantica113();
@@ -202,6 +208,36 @@ public class Semantico implements Constants {
         (b) gerar código objeto para armazenar o valor lido em identificador (código: stloc token.getLexeme).
      */
     
+    private void acao_semantica105(Token token) throws SemanticError {
+    String identificador = token.getLexeme();
+
+    // Verifica se o identificador está na tabela de símbolos
+    if (!tabela_simbolos.containsKey(identificador)) {
+        throw new SemanticError(identificador + " não declarado", token.getPosition());
+    }
+
+    String tipo = tabela_simbolos.get(identificador);
+    switch (tipo) {
+        case "int64":
+            codigo_fonte += "call int64 [mscorlib]System.Console::ReadLine()\n";
+            codigo_fonte += "conv.i8\n";
+            break;
+        case "float64":
+            codigo_fonte += "call float64 [mscorlib]System.Console::ReadLine()\n";
+            break;
+        case "string":
+            codigo_fonte += "call string [mscorlib]System.Console::ReadLine()\n";
+            break;
+        case "bool":
+            codigo_fonte += "call bool [mscorlib]System.Console::ReadLine()\n";
+            break;
+        default:
+            throw new SemanticError("Tipo não suportado: " + tipo, token.getPosition());
+    }
+
+    codigo_fonte += "stloc " + identificador + "\n";
+}
+    
     /*
     a ação #106:
          gerar código objeto para carregar o valor da constante_string (verificar no anexo: instruções MSIL ou na
@@ -209,6 +245,22 @@ public class Semantico implements Constants {
          gerar código objeto para escrever a constante (código: call void [mscorlib]System.Console::Write
         (string)); 
      */
+    
+    private void acao_semantica106(Token token) {
+    String constanteString = token.getLexeme();
+
+    codigo_fonte += "ldstr \"" + constanteString + "\"\n";
+
+    codigo_fonte += "call void [mscorlib]System.Console::Write(string)\n";
+}
+
+    
+    private void acao_semantica106() {
+
+    if (pilha_rotulos.isEmpty()) {
+        throw new IllegalStateException("Erro: Tentativa de desempilhar um rótulo de uma pilha vazia.");
+    }
+    }
     
         /*
     ação #107:
@@ -301,19 +353,15 @@ public class Semantico implements Constants {
         throw new RuntimeException("Erro semântico: Tentativa de desempilhar rótulo de uma pilha vazia.");
     }
 }
-
-    
        /*
    ação #112:
          criar um rótulo (novo_rotulo); 
      */
-    
-    private void acao_semantica112() {
+private void acao_semantica112() {
     String novoRotulo = "rotulo_" + pilha_rotulos.size();
     
     pilha_rotulos.push(novoRotulo);
-}
-   
+} 
     /* 
     ação #113 (antes do repeat) deve:
          criar um rótulo (novo_rotulo);
@@ -321,14 +369,14 @@ public class Semantico implements Constants {
          empilhar o rótulo (novo_rotulo) na pilha_rotulos para resolução posterior. 
     */
     
-    private void acao_semantica113() {
+private void acao_semantica113() {
     String novoRotulo = "rotulo_" + pilha_rotulos.size();
     
-    codigo_fonte += novoRotulo + ":\n";
-    
     pilha_rotulos.push(novoRotulo);
-}
     
+    codigo_fonte += novoRotulo + ":\n";
+}
+
     /*
     ação #114 (após <expressão>) deve:
          desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado);
