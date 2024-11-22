@@ -40,10 +40,13 @@ public class GUI {
     public JButton compileBtn;
     public JButton teamBtn;
 
-    private ButtonsActions btnsActions;
+    private String currentPath;
+
+    private final ButtonsActions btnsActions;
 
     public GUI() {
         btnsActions = new ButtonsActions(this);
+        currentPath = "";
 
         createWindow();
         createToolBar();
@@ -158,7 +161,7 @@ public class GUI {
         openBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                btnsActions.OpenFile();
+                SetCurrentPath(btnsActions.OpenFile());
             }
         });
 
@@ -186,7 +189,7 @@ public class GUI {
         saveBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                btnsActions.SaveFile();
+                SetCurrentPath(btnsActions.SaveFile());
             }
         });
 
@@ -298,10 +301,15 @@ public class GUI {
         compileBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (currentPath.isEmpty()) {
+                    SetCurrentPath(btnsActions.SaveFile());
+                    if (currentPath == null || currentPath.isBlank()) {
+                        return;
+                    }
+                }
+
                 messageArea.setText("");
-                String[] textoDivido = editor.getText().split("\n");
-                int linha;
-                int qtdCaracteres;
+                String[] textoDividido = editor.getText().split("\n");
 
                 Lexico lexico = new Lexico();
                 Sintatico sintatico = new Sintatico();
@@ -313,129 +321,111 @@ public class GUI {
                     messageArea.setText("Programa compilado com sucesso!");
 
                     try {
-                        // Obtém o caminho da área de trabalho
-                        String desktopPath = System.getProperty("user.home") + "/Desktop";
-
                         // Define o nome do arquivo
-                        File file = new File(desktopPath, "arquivo.il");
-
+                        String path = currentPath.replace(".txt", ".il");
+                        File file = new File(path);
                         // Cria o arquivo
-                        if (file.createNewFile()) {
-                            System.out.println("Arquivo criado: " + file.getAbsolutePath());
-
-                            // Escreve no arquivo
-                            FileWriter writer = new FileWriter(file);
-                            writer.write(semantico.getCode());
-                            writer.close();
-
-                            System.out.println("Conteúdo escrito no arquivo.");
-                        } else {
-                            System.out.println("O arquivo já existe.");
+                        if (!file.exists()) {
+                            file.createNewFile();
                         }
+
+                        FileWriter writer = new FileWriter(file);
+                        writer.write(semantico.getCode());
+                        writer.close();
+
+                        System.out.println("Conteúdo escrito no arquivo.");
                     } catch (IOException exc) {
                         System.out.println("Ocorreu um erro ao criar o arquivo.");
                     }
-            }
-            catch (LexicalError erroLexico
+                } catch (LexicalError erroLexico) {
+                    int posErro = erroLexico.getPosition();
+                    int linha = FindLine(posErro, textoDividido);
 
-            
-                ) {
-                    linha = 0;
-                qtdCaracteres = textoDivido[linha].length();
-                int posErro = erroLexico.getPosition();
-
-                while (posErro > qtdCaracteres) {
-                    linha++;
-                    qtdCaracteres += textoDivido[linha].length() + 1;
-                }
-
-                StringBuilder lexemaInvalido = new StringBuilder();
-                while (posErro < editor.getText().length()) {
-                    char currentChar = editor.getText().charAt(posErro);
-                    if (Character.isWhitespace(currentChar)) {
-                        break;
-                    }
-                    lexemaInvalido.append(currentChar);
-                    posErro++;
-                }
-
-                // Verifica se é erro de cte_string
-                if (erroLexico.GetId() == 19) {
-                    messageArea.setText("Erro na linha " + (linha + 1) + " - " + erroLexico.getMessage());
-                } else {
-                    messageArea.setText("Erro na linha " + (linha + 1) + " - Símbolo '" + lexemaInvalido.toString() + "' " + erroLexico.getMessage());
-                }
-
-            }
-            catch (SyntaticError erroSintatico
-
-            
-                ) {
-                    linha = 0;
-                qtdCaracteres = textoDivido[linha].length();
-                int posErro = erroSintatico.getPosition();
-
-                while (posErro > qtdCaracteres) {
-                    linha++;
-                    qtdCaracteres += textoDivido[linha].length() + 1;
-                }
-
-                StringBuilder lexemaInvalido = new StringBuilder();
-                boolean maybeIsCteString = false;
-                boolean isCteString = false;
-
-                while (posErro < editor.getText().length()) {
-                    char currentChar = editor.getText().charAt(posErro);
-                    if (currentChar == '"') {
-                        if (maybeIsCteString) {
-                            isCteString = true;
+                    StringBuilder lexemaInvalido = new StringBuilder();
+                    while (posErro < editor.getText().length()) {
+                        char currentChar = editor.getText().charAt(posErro);
+                        if (Character.isWhitespace(currentChar)) {
                             break;
-                        } else {
-                            maybeIsCteString = true;
                         }
+                        lexemaInvalido.append(currentChar);
+                        posErro++;
                     }
-                    if (Character.isWhitespace(currentChar)) {
-                        break;
+
+                    // Verifica se é erro de cte_string
+                    if (erroLexico.GetId() == 19) {
+                        messageArea.setText("Erro na linha " + linha + " - " + erroLexico.getMessage());
+                    } else {
+                        messageArea.setText("Erro na linha " + linha + " - Símbolo '" + lexemaInvalido.toString() + "' " + erroLexico.getMessage());
                     }
-                    lexemaInvalido.append(currentChar);
-                    posErro++;
-                }
 
-                if (isCteString) {
-                    lexemaInvalido = new StringBuilder();
-                    lexemaInvalido.append("constante_string");
-                }
-                if (erroSintatico.IsEOF()) {
-                    lexemaInvalido = new StringBuilder();
-                    lexemaInvalido.append("EOF");
-                }
+                } catch (SyntaticError erroSintatico) {
+                    int posErro = erroSintatico.getPosition();
+                    int linha = FindLine(posErro, textoDividido);
 
-                messageArea.setText("Erro na linha " + (linha + 1) + " - encontrado " + lexemaInvalido + " " + erroSintatico.getMessage());
+                    StringBuilder lexemaInvalido = new StringBuilder();
+                    boolean maybeIsCteString = false;
+                    boolean isCteString = false;
 
-                //Trata erros sintáticos
-                //linha 			      sugestão: converter getPosition em linha
-                //símbolo encontrado    sugestão: implementar um método getToken no sintatico
-                //símbolos esperados,   alterar ParserConstants.java, String[] PARSER_ERROR
-                // consultar os símbolos esperados no GALS (em Documentação > Tabela de Análise Sintática): 		
-            }
-            catch (SemanticError erroSemantico
+                    while (posErro < editor.getText().length()) {
+                        char currentChar = editor.getText().charAt(posErro);
+                        if (currentChar == '"') {
+                            if (maybeIsCteString) {
+                                isCteString = true;
+                                break;
+                            } else {
+                                maybeIsCteString = true;
+                            }
+                        }
+                        if (Character.isWhitespace(currentChar)) {
+                            break;
+                        }
+                        lexemaInvalido.append(currentChar);
+                        posErro++;
+                    }
 
-            
-            
-        )
-    
+                    if (isCteString) {
+                        lexemaInvalido = new StringBuilder();
+                        lexemaInvalido.append("constante_string");
+                    }
+                    if (erroSintatico.IsEOF()) {
+                        lexemaInvalido = new StringBuilder();
+                        lexemaInvalido.append("EOF");
+                    }
 
-    {
-                    //Trata erros semânticos
+                    messageArea.setText("Erro na linha " + linha + " - encontrado " + lexemaInvalido + " " + erroSintatico.getMessage());
+
+                    //Trata erros sintáticos
+                    //linha 			      sugestão: converter getPosition em linha
+                    //símbolo encontrado    sugestão: implementar um método getToken no sintatico
+                    //símbolos esperados,   alterar ParserConstants.java, String[] PARSER_ERROR
+                    // consultar os símbolos esperados no GALS (em Documentação > Tabela de Análise Sintática): 		
+                } catch (SemanticError erroSemantico) {
+                    int posErro = erroSemantico.getPosition();
+                    int linha = FindLine(posErro, textoDividido);
+
+                    messageArea.setText("Erro na linha " + linha + " - " + erroSemantico.getMessage());
                 }
 
             }
         });
 
-    toolBar.add (compileBtn);
-}
+        toolBar.add(compileBtn);
+    }
 
-private void CreateTeamBtn() {
+    private int FindLine(int errorPosition, String[] splittedText) {
+        int line = 0;
+        int qtdCaracteres = splittedText[line].length();
+        int posErro = errorPosition;
+
+        while (posErro > qtdCaracteres) {
+            line++;
+            qtdCaracteres += splittedText[line].length() + 1;
+        }
+
+        return line + 1;
+    }
+
+    private void CreateTeamBtn() {
         String btnLabel = "Equipe";
         String btnShortcut = "F1";
         String iconPath = "/icons/equipe.png";
@@ -455,7 +445,7 @@ private void CreateTeamBtn() {
 
         teamBtn.addActionListener(new ActionListener() {
             @Override
-public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 btnsActions.ShowTeam();
             }
         });
@@ -470,7 +460,7 @@ public void actionPerformed(ActionEvent e) {
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK), "novo");
         actionMap.put("novo", new AbstractAction() {
             @Override
-public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 newBtn.doClick();
             }
         });
@@ -478,7 +468,7 @@ public void actionPerformed(ActionEvent e) {
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK), "abrir");
         actionMap.put("abrir", new AbstractAction() {
             @Override
-public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 openBtn.doClick();
             }
         });
@@ -486,7 +476,7 @@ public void actionPerformed(ActionEvent e) {
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK), "salvar");
         actionMap.put("salvar", new AbstractAction() {
             @Override
-public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 saveBtn.doClick();
             }
         });
@@ -494,7 +484,7 @@ public void actionPerformed(ActionEvent e) {
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0), "compilar");
         actionMap.put("compilar", new AbstractAction() {
             @Override
-public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 compileBtn.doClick();
             }
         });
@@ -502,9 +492,13 @@ public void actionPerformed(ActionEvent e) {
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "equipe");
         actionMap.put("equipe", new AbstractAction() {
             @Override
-public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 teamBtn.doClick();
             }
         });
+    }
+
+    public void SetCurrentPath(String path) {
+        this.currentPath = path;
     }
 }

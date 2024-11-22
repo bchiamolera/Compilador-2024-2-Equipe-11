@@ -52,20 +52,21 @@ public class Semantico implements Constants {
 
     private String operador_relacional = "";
     private String codigo_fonte = "";
-    private Stack<String> pilha_tipos = new Stack();
-    private Stack pilha_rotulos = new Stack();
-    private List<String> lista_identificadores = new ArrayList<String>();
-    private HashMap<String, String> tabela_simbolos = new HashMap();
-
+    private int countL = 0;
+    private final Stack<String> pilha_tipos = new Stack();
+    private final Stack<String> pilha_rotulos = new Stack();
+    private final List<Token> lista_identificadores = new ArrayList<>();
+    private final HashMap<String, String> tabela_simbolos = new HashMap();
+    
     public void executeAction(int action, Token token) throws SemanticError {
-        System.out.println("Acao #" + action + ", Token: " + token);
-
+        //System.out.println("Acao #" + action + ", Token: " + token);
         switch (action) {
             case 100:
                 acao_semantica100();
                 break;
             case 101:
                 acao_semantica101();
+                break;
             case 102:
                 acao_semantica102();
                 break;
@@ -79,7 +80,7 @@ public class Semantico implements Constants {
                 acao_semantica105(token);
                 break;
             case 106:
-                acao_semantica106();
+                acao_semantica106(token);
                 break;
             case 107:
                 acao_semantica107();
@@ -160,7 +161,7 @@ public class Semantico implements Constants {
                 System.out.println("Ação não implementada/não existe");
         }
     }
-    
+
     public String getCode() {
         return this.codigo_fonte;
     }
@@ -172,7 +173,7 @@ public class Semantico implements Constants {
         this.codigo_fonte = ".assembly extern mscorlib {}\n"
                 + ".assembly _codigo_objeto{}\n"
                 + ".module _codigo_objeto.exe\n"
-                + ".class public UNICA{\n"
+                + ".class public _UNICA{\n"
                 + ".method static public void _principal() {\n"
                 + ".entrypoint\n";
     }
@@ -185,7 +186,7 @@ public class Semantico implements Constants {
                 + "}\n"
                 + "}";
     }
-    
+
     /*
     ação #102: para cada identificador da lista_identificadores:
     verificar se o identificador foi declarado, ou seja, se está na tabela_simbolos;
@@ -199,13 +200,12 @@ public class Semantico implements Constants {
     limpar a lista_identificadore, após o processamento. 
      */
     private void acao_semantica102() throws SemanticError {
-        this.codigo_fonte += ".locals(";
-        for (String identificador : this.lista_identificadores) {
-            
+        for (Token token : this.lista_identificadores) {
+            String identificador = token.getLexeme();
             if (this.tabela_simbolos.containsKey(identificador)) {
-                throw new SemanticError(identificador + " ja declarado");
+                throw new SemanticError(identificador + " ja declarado", token.getPosition());
             }
-            
+            this.codigo_fonte += ".locals(";
             String tipo = "";
             switch (identificador.charAt(0)) {
                 case 'i':
@@ -221,19 +221,13 @@ public class Semantico implements Constants {
                     tipo = "bool";
                     break;
             }
+            this.codigo_fonte += tipo + " " + identificador + ")\n";
             this.tabela_simbolos.put(identificador, tipo);
-            
-            if (this.lista_identificadores.indexOf(identificador) == 0) {
-                this.codigo_fonte += tipo + " " + identificador;
-            } else {
-                this.codigo_fonte += ", " + tipo + " " + identificador;
-            }
         }
-        this.codigo_fonte += ")\n";
-        
+
         this.lista_identificadores.clear();
     }
-    
+
     /*
     ação #103:
          desempilhar o tipo da <expressão> da pilha_tipos;
@@ -255,29 +249,30 @@ public class Semantico implements Constants {
         if (tipo.equals("int64")) {
             this.codigo_fonte += "conv.i8\n";
         }
-        
+
         for (int i = 0; i < this.lista_identificadores.size() - 1; i++) {
             this.codigo_fonte += "dup\n";
         }
-        
-        for (String identificador : this.lista_identificadores) {
-            if (this.tabela_simbolos.containsKey(identificador)) {
-                throw new SemanticError(identificador + " ja declarado");
+
+        for (Token token : this.lista_identificadores) {
+            String identificador = token.getLexeme();
+            if (!this.tabela_simbolos.containsKey(identificador)) {
+                throw new SemanticError(identificador + " nao declarado", token.getPosition());
             }
             this.codigo_fonte += "stloc " + identificador + "\n";
         }
-        
+
         this.lista_identificadores.clear();
     }
-    
+
     /*
     ação #104:
          guardar identificador (token.getLexeme) na lista_identificadores para uso posterior. 
      */
     private void acao_semantica104(Token token) {
-        this.lista_identificadores.add(token.getLexeme());
+        this.lista_identificadores.add(token);
     }
-    
+
     /*
     a ação #105: para identificador:
          verificar se o identificador (token.getLexeme) foi declarado, ou seja, se está na tabela_simbolos;
@@ -289,37 +284,32 @@ public class Semantico implements Constants {
         bool para b_ (verificar no anexo: instruções MSIL ou na lista no. 6 ou lista no. 7);
         (b) gerar código objeto para armazenar o valor lido em identificador (código: stloc token.getLexeme).
      */
-    
     private void acao_semantica105(Token token) throws SemanticError {
-    String identificador = token.getLexeme();
+        String identificador = token.getLexeme();
 
-    // Verifica se o identificador está na tabela de símbolos
-    if (!tabela_simbolos.containsKey(identificador)) {
-        throw new SemanticError(identificador + " não declarado", token.getPosition());
+        // Verifica se o identificador está na tabela de símbolos
+        if (!tabela_simbolos.containsKey(identificador)) {
+            throw new SemanticError(identificador + " nao declarado", token.getPosition());
+        }
+
+        String tipo = tabela_simbolos.get(identificador);
+        codigo_fonte += "call string [mscorlib]System.Console::ReadLine()\n";
+        switch (tipo) {
+            case "int64":
+                codigo_fonte += "call int64 [mscorlib]System.Int64::Parse(string)\n";
+                break;
+            case "float64":
+                codigo_fonte += "call float64 [mscorlib]System.Double::Parse(string)\n";
+                break;
+            case "bool":
+                codigo_fonte += "call bool [mscorlib]System.Boolean::Parse(string)\n";
+                break;
+            default:
+        }
+
+        codigo_fonte += "stloc " + identificador + "\n";
     }
 
-    String tipo = tabela_simbolos.get(identificador);
-    switch (tipo) {
-        case "int64":
-            codigo_fonte += "call int64 [mscorlib]System.Console::ReadLine()\n";
-            codigo_fonte += "conv.i8\n";
-            break;
-        case "float64":
-            codigo_fonte += "call float64 [mscorlib]System.Console::ReadLine()\n";
-            break;
-        case "string":
-            codigo_fonte += "call string [mscorlib]System.Console::ReadLine()\n";
-            break;
-        case "bool":
-            codigo_fonte += "call bool [mscorlib]System.Console::ReadLine()\n";
-            break;
-        default:
-            throw new SemanticError("Tipo não suportado: " + tipo, token.getPosition());
-    }
-
-    codigo_fonte += "stloc " + identificador + "\n";
-}
-    
     /*
     a ação #106:
          gerar código objeto para carregar o valor da constante_string (verificar no anexo: instruções MSIL ou na
@@ -327,31 +317,22 @@ public class Semantico implements Constants {
          gerar código objeto para escrever a constante (código: call void [mscorlib]System.Console::Write
         (string)); 
      */
-    
     private void acao_semantica106(Token token) {
-    String constanteString = token.getLexeme();
+        String constanteString = token.getLexeme();
 
-    codigo_fonte += "ldstr \"" + constanteString + "\"\n";
+        codigo_fonte += "ldstr " + constanteString + "\n";
 
-    codigo_fonte += "call void [mscorlib]System.Console::Write(string)\n";
-}
-
-    
-    private void acao_semantica106() {
-
-    if (pilha_rotulos.isEmpty()) {
-        throw new IllegalStateException("Erro: Tentativa de desempilhar um rótulo de uma pilha vazia.");
+        codigo_fonte += "call void [mscorlib]System.Console::Write(string)\n";
     }
-    }
-    
-        /*
+
+    /*
     ação #107:
          gerar código objeto para escrever quebra de linha na saída padrão. 
      */
     private void acao_semantica107() {
         this.codigo_fonte += "call void [mscorlib]System.Console::WriteLine()\n";
     }
-    
+
     /*
     ação #108:
     - desempilhar um tipo da pilha_tipos;
@@ -361,18 +342,14 @@ public class Semantico implements Constants {
     [mscorlib]System.Console::Write(<tipo>), onde <tipo> pode se int64, float64, string ou bool).
      */
     private void acao_semantica108() {
-        try {
-            String tipo = this.pilha_tipos.pop();
-            if (tipo.equals("int64")) {
-                codigo_fonte += "conv.i8\n";
-            }
-            codigo_fonte += "call void [mscorlib]System.Console::Write(" + tipo + ")\n";
-        } catch (Exception e) {
-            
+        String tipo = this.pilha_tipos.pop();
+        if (tipo.equals("int64")) {
+            this.codigo_fonte += "conv.i8\n";
         }
+        this.codigo_fonte += "call void [mscorlib]System.Console::Write(" + tipo + ")\n";
     }
-    
-        /*
+
+    /*
     ação #109:
          criar um rótulo (novo_rotulo1) para rotular a primeira instrução após o end;
          empilhar o rótulo (novo_rotulo1) na pilha_rotulos para resolução posterior;
@@ -380,29 +357,20 @@ public class Semantico implements Constants {
          gerar código objeto para desviar os comandos da cláusula if caso o resultado da avaliação da <expressão> for
         false (código: brfalse novo_rotulo2);
          empilhar o rótulo (novo_rotulo2) na pilha_rotulos para resolução posterior
-             */
-
-            /*
-            para os operadores aritméticos binários (ações #123, #124, #125, #126):
-            - desempilhar dois tipos da pilha_tipos, empilhar o tipo resultante da operação conforme indicado na TABELA DE
-            TIPOS;
-            - gerar código objeto para efetuar a operação correspondente em IL (código: add, sub, mul ou div,
-            respectivamente).
      */
-    
     private void acao_semantica109() {
-    String novoRotulo1 = "rotulo_" + pilha_rotulos.size();
-    String novoRotulo2 = "rotulo_" + (pilha_rotulos.size() + 1);
+        countL++;
+        String novoRotulo1 = "L" + countL;
+        pilha_rotulos.push(novoRotulo1);
+        countL++;
+        String novoRotulo2 = "L" + countL;
 
-    pilha_rotulos.push(novoRotulo1);
+        this.codigo_fonte += "brfalse " + novoRotulo2 + "\n";
 
-    codigo_fonte += "brfalse " + novoRotulo2 + "\n";
+        pilha_rotulos.push(novoRotulo2);
+    }
 
-    pilha_rotulos.push(novoRotulo2);
-}
-
-    
-        /*
+    /*
     ação #110:
          desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado2);
          desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado1);
@@ -410,57 +378,52 @@ public class Semantico implements Constants {
          empilhar o rótulo (rotulo_desempilhado1) na pilha_rotulos para resolução posterior;
          rotular a próxima instrução do código objeto com o rótulo desempilhado (código: rotulo_desempilhado2:). 
      */
-    
     private void acao_semantica110() {
-    if (!pilha_rotulos.isEmpty()) {
-        
-        String rotuloAtual = (String) pilha_rotulos.pop();
+        String rotuloDesempilhado2 = pilha_rotulos.pop();
+        String rotuloDesempilhado1 = pilha_rotulos.pop();
 
-        codigo_fonte += rotuloAtual + ":\n";
-    } else {
-        throw new RuntimeException("Erro semântico: Pilha de rótulos está vazia ao tentar resolver o rótulo.");
+        codigo_fonte += "br " + rotuloDesempilhado1 + "\n";
+        pilha_rotulos.push(rotuloDesempilhado1);
+
+        codigo_fonte += rotuloDesempilhado2 + ":\n";
     }
-}
 
-    
-        /*
+    /*
     ação #111:
          desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado);
          rotular a próxima instrução do código objeto com o rótulo desempilhado (código: rotulo_desempilhado:).
      */
-    
     private void acao_semantica111() {
-    if (!pilha_rotulos.isEmpty()) {
-        String rotuloDesempilhado = (String) pilha_rotulos.pop();
-
+        String rotuloDesempilhado = pilha_rotulos.pop();
         codigo_fonte += rotuloDesempilhado + ":\n";
-    } else {
-        throw new RuntimeException("Erro semântico: Tentativa de desempilhar rótulo de uma pilha vazia.");
     }
-}
-       /*
+
+    /*
    ação #112:
-         criar um rótulo (novo_rotulo); 
+         criar um rótulo (novo_rotulo);
+         gerar código objeto para desviar os comandos da cláusula elif caso o resultado da avaliação da <expressão>
+        for false (código: brfalse novo_rotulo);
+         empilhar o rótulo (novo_rotulo) na pilha_rotulos para resolução posterior.
      */
-private void acao_semantica112() {
-    String novoRotulo = "rotulo_" + pilha_rotulos.size();
-    
-    pilha_rotulos.push(novoRotulo);
-} 
+    private void acao_semantica112() {
+        countL++;
+        String novoRotulo = "L" + countL;
+        codigo_fonte += "brfalse " + novoRotulo + "\n";
+        pilha_rotulos.push(novoRotulo);
+    }
+
     /* 
     ação #113 (antes do repeat) deve:
          criar um rótulo (novo_rotulo);
          rotular a próxima instrução do código objeto com o rótulo criado (código: novo_rotulo:).
          empilhar o rótulo (novo_rotulo) na pilha_rotulos para resolução posterior. 
-    */
-    
-private void acao_semantica113() {
-    String novoRotulo = "rotulo_" + pilha_rotulos.size();
-    
-    pilha_rotulos.push(novoRotulo);
-    
-    codigo_fonte += novoRotulo + ":\n";
-}
+     */
+    private void acao_semantica113() {
+        countL++;
+        String novoRotulo = "L" + countL;
+        codigo_fonte += novoRotulo + ":\n";
+        pilha_rotulos.push(novoRotulo);
+    }
 
     /*
     ação #114 (após <expressão>) deve:
@@ -468,107 +431,83 @@ private void acao_semantica113() {
          gerar código objeto para desviar para o primeiro comando do comando <repetição> caso o resultado da
         avaliação da <expressão> for true (código: brtrue rotulo_desempilhado). 
 
-    */
-    
+     */
     private void acao_semantica114() {
-    if (!pilha_rotulos.isEmpty()) {
-        String rotuloDesempilhado = (String) pilha_rotulos.pop();
+        String rotuloDesempilhado = pilha_rotulos.pop();
         codigo_fonte += "brtrue " + rotuloDesempilhado + "\n";
-    } else {
-        System.out.println("Erro semântico: pilha de rótulos vazia ao executar a ação 114.");
     }
-}
-    
+
     /*
     ação #115 (após <expressão>) deve:
          desempilhar um rótulo da pilha_rotulos (rotulo_desempilhado);
          gerar código objeto para desviar para o primeiro comando do comando <repetição> caso o resultado da
         avaliação da <expressão> for false (código: brfalse rotulo_desempilhado). 
-    */
-    
+     */
     private void acao_semantica115() {
-    if (!pilha_rotulos.isEmpty()) {
-        String rotuloDesempilhado = (String) pilha_rotulos.pop();
-        
+        String rotuloDesempilhado = pilha_rotulos.pop();
         codigo_fonte += "brfalse " + rotuloDesempilhado + "\n";
-    } else {
-        System.out.println("Erro semântico: pilha de rótulos vazia ao executar a ação 115.");
     }
-}
-    
+
     /*
     para os operadores lógicos binários (ações #116, #117):
          desempilhar dois tipos da pilha_tipos, empilhar o tipo resultante da operação conforme indicado na TABELA DE
         TIPOS;
          gerar código objeto para efetuar a operação correspondente em IL (verificar no anexo: instruções MSIL ou na
         lista no. 6 ou lista no. 7). 
-    */
+     */
     private void acao_semantica116() {
-        try {
-            String tipo1 = this.pilha_tipos.pop();
-            String tipo2 = this.pilha_tipos.pop();
-            if (tipo1.equals("bool") && tipo2.equals("bool")) {
-                this.pilha_tipos.push("bool");
-                this.codigo_fonte += "and\n";
-            }
-        } catch (Exception e) {
-
-        }
+        this.pilha_tipos.pop();
+        this.pilha_tipos.pop();
+        this.pilha_tipos.push("bool");
+        this.codigo_fonte += "and\n";
     }
-    
+
     private void acao_semantica117() {
-        try {
-            String tipo1 = this.pilha_tipos.pop();
-            String tipo2 = this.pilha_tipos.pop();
-            if (tipo1.equals("bool") && tipo2.equals("bool")) {
-                this.pilha_tipos.push("bool");
-                this.codigo_fonte += "or\n";
-            }
-        } catch (Exception e) {
-
-        }
+        this.pilha_tipos.pop();
+        this.pilha_tipos.pop();
+        this.pilha_tipos.push("bool");
+        this.codigo_fonte += "or\n";
     }
-    
-    
+
     /*
     para true (ação #118):
          empilhar na pilha_tipos o tipo correspondente conforme indicado na TABELA DE TIPOS;
          gerar código objeto para carregar o valor da constante (código: ldc.i4.1). 
-    */
+     */
     private void acao_semantica118() {
         this.pilha_tipos.push("bool");
         this.codigo_fonte += "ldc.i4.1\n";
     }
-    
+
     /*
     para false (ação #119):
          empilhar na pilha_tipos o tipo correspondente conforme indicado na TABELA DE TIPOS;
          gerar código objeto para carregar o valor da constante (código: ldc.i4.0). 
 
-    */
+     */
     private void acao_semantica119() {
         this.pilha_tipos.push("bool");
         this.codigo_fonte += "ldc.i4.0\n";
     }
-    
+
     /*
     para o operador lógico unário "!" (ação #120):
          gerar código objeto para efetuar a operação correspondente em IL (verificar no anexo: instruções MSIL ou na
         lista no. 6 ou lista no. 7). 
-    */
+     */
     private void acao_semantica120() {
         this.codigo_fonte += "ldc.i4.1\n"
-                           + "xor";
+                + "xor";
     }
-    
+
     /*
     ação #121:
          guardar em operador_relacional (token.getLexeme) o operador relacional reconhecido pela ação;
-    */
+     */
     private void acao_semantica121(Token token) {
         this.operador_relacional = token.getLexeme();
     }
-    
+
     /*
     ação #122:
          desempilhar dois tipos da pilha_tipos, empilhar o tipo resultante da operação conforme indicado na TABELA DE
@@ -576,112 +515,87 @@ private void acao_semantica113() {
          gerar código objeto para efetuar a operação correspondente em IL conforme o operador relacional armazenado
         em operador_relacional (verificar no anexo: instruções MSIL ou na lista no. 6 ou lista no. 7, verificar em AVA
         > Links e ferramentas > TOMAZELLI, Giancarlo. ...). 
-    */
+     */
     private void acao_semantica122() {
-        try {
-            String tipo1 = this.pilha_tipos.pop();
-            String tipo2 = this.pilha_tipos.pop();
+        this.pilha_tipos.pop();
+        this.pilha_tipos.pop();
+        this.pilha_tipos.push("bool");
 
-            if (!tipo1.equals(tipo2)) {
-                throw new SemanticError("Tipos inválidos");
-            }
-            
-            switch (operador_relacional) {
-                case "==":
-                    this.codigo_fonte += "ceq\n";
-                    break;
-                case "!=":
-                    this.codigo_fonte += "ceq\n"
-                                       + "ldc.i4.1\n"
-                                       + "xor";
-                    break;
-                case ">":
-                    this.codigo_fonte += "cgt\n";
-                    break;
-                case "<":
-                    this.codigo_fonte += "clt\n";
-                    break;
-                default:
-                    throw new SemanticError("Operador relacional invalido");
-            }
-        } catch (Exception e) {
-
+        switch (operador_relacional) {
+            case "==":
+                this.codigo_fonte += "ceq\n";
+                break;
+            case "!=":
+                this.codigo_fonte += "ceq\n"
+                        + "ldc.i4.1\n"
+                        + "xor";
+                break;
+            case ">":
+                this.codigo_fonte += "cgt\n";
+                break;
+            case "<":
+                this.codigo_fonte += "clt\n";
+                break;
         }
     }
-    
+
     /*
     para os operadores aritméticos binários (ações #123, #124, #125, #126):
          desempilhar dois tipos da pilha_tipos, empilhar o tipo resultante da operação conforme indicado na TABELA DE
         TIPOS; 
-    */
+     */
     private void acao_semantica123() {
-        try {
-            String tipo1 = this.pilha_tipos.pop();
-            String tipo2 = this.pilha_tipos.pop();
+        String tipo1 = this.pilha_tipos.pop();
+        String tipo2 = this.pilha_tipos.pop();
 
-            this.codigo_fonte += "add\n";
+        this.codigo_fonte += "add\n";
 
-            if (tipo1.equals("int64") && tipo2.equals("int64")) {
-                this.pilha_tipos.push("int64");
-            } else {
-                this.pilha_tipos.push("float64");
-            }
-        } catch (Exception e) {
-
+        if (tipo1.equals("int64") && tipo2.equals("int64")) {
+            this.pilha_tipos.push("int64");
+        } else {
+            this.pilha_tipos.push("float64");
         }
     }
-    
+
     private void acao_semantica124() {
-        try {
-            String tipo1 = this.pilha_tipos.pop();
-            String tipo2 = this.pilha_tipos.pop();
+        String tipo1 = this.pilha_tipos.pop();
+        String tipo2 = this.pilha_tipos.pop();
 
-            this.codigo_fonte += "sub\n";
+        this.codigo_fonte += "sub\n";
 
-            if (tipo1.equals("int64") && tipo2.equals("int64")) {
-                this.pilha_tipos.push("int64");
-            } else {
-                this.pilha_tipos.push("float64");
-            }
-        } catch (Exception e) {
-
+        if (tipo1.equals("int64") && tipo2.equals("int64")) {
+            this.pilha_tipos.push("int64");
+        } else {
+            this.pilha_tipos.push("float64");
         }
     }
-    
+
     private void acao_semantica125() {
-        try {
-            String tipo1 = this.pilha_tipos.pop();
-            String tipo2 = this.pilha_tipos.pop();
+        String tipo1 = this.pilha_tipos.pop();
+        String tipo2 = this.pilha_tipos.pop();
 
-            this.codigo_fonte += "mul\n";
+        this.codigo_fonte += "mul\n";
 
-            if (tipo1.equals("int64") && tipo2.equals("int64")) {
-                this.pilha_tipos.push("int64");
-            } else {
-                this.pilha_tipos.push("float64");
-            }
-        } catch (Exception e) {
-
+        if (tipo1.equals("int64") && tipo2.equals("int64")) {
+            this.pilha_tipos.push("int64");
+        } else {
+            this.pilha_tipos.push("float64");
         }
     }
-    
+
     private void acao_semantica126() {
-        try {
-            String tipo1 = this.pilha_tipos.pop();
-            String tipo2 = this.pilha_tipos.pop();
+        String tipo1 = this.pilha_tipos.pop();
+        String tipo2 = this.pilha_tipos.pop();
 
-            this.codigo_fonte += "div\n";
+        this.codigo_fonte += "div\n";
 
-            if (tipo1.equals("int64") && tipo2.equals("int64")) {
-                this.pilha_tipos.push("int64");
-            } else {
-                this.pilha_tipos.push("float64");
-            }
-        } catch (Exception e) {
-
+        if (tipo1.equals("int64") && tipo2.equals("int64")) {
+            this.pilha_tipos.push("int64");
+        } else {
+            this.pilha_tipos.push("float64");
         }
     }
-    
+
     /*
     A semântica de identificador (ação #127) em <expressão> é a seguinte:
          verificar se o identificador (token.getLexeme) foi declarado, ou seja, se está na tabela_simbolos;
@@ -692,19 +606,19 @@ private void acao_semantica113() {
         (b) gerar código objeto para carregar o valor armazenado em identificador (código: ldloc token.getLexeme);
         (c) se identificador for do tipo int64, gerar código objeto para converter o valor para float64 (código:
         conv.r8). 
-    */
+     */
     private void acao_semantica127(Token token) throws SemanticError {
         // Pegar linha
         if (!this.tabela_simbolos.containsKey(token.getLexeme())) {
-            throw new SemanticError(token.getLexeme() + "nao declarado");
+            throw new SemanticError(token.getLexeme() + "nao declarado", token.getPosition());
         }
-        
+
         String tipo = this.tabela_simbolos.get(token.getLexeme());
         this.pilha_tipos.push(tipo);
-        
+
         this.codigo_fonte += "ldloc " + token.getLexeme() + "\n";
-        
-        if (tipo.equals("int64")) {
+
+        if (tipo.equalsIgnoreCase("int64")) {
             this.codigo_fonte += "conv.r8\n";
         }
     }
@@ -732,37 +646,30 @@ private void acao_semantica113() {
         this.pilha_tipos.push("float64");
         this.codigo_fonte += "ldc.r8 " + token.getLexeme().replace(',', '.') + "\n";
     }
-    
+
     /*
     para constante_string (ação #130):
          empilhar na pilha_tipos o tipo correspondente conforme indicado na TABELA DE TIPOS;
          gerar código objeto para carregar o valor da constante em IL (verificar no anexo: instruções MSIL ou na lista
         no. 6 ou lista no. 7). 
-    */
+     */
     private void acao_semantica130(Token token) {
         this.pilha_tipos.push("string");
         this.codigo_fonte += "ldstr " + token.getLexeme() + "\n";
-    }    
-    
+    }
+
     /*
     para o operador aritmético unário "-" (ação #131):
          gerar código objeto para efetuar a operação correspondente em IL (verificar no anexo: instruções MSIL ou na
         lista no. 6 ou lista no. 7). 
-    */
+     */
     private void acao_semantica131() {
-        try {
-            String tipo = this.pilha_tipos.pop();
+        String tipo = this.pilha_tipos.pop();
 
-            if (tipo.equals("int64") || tipo.equals("float64")) {
-                this.codigo_fonte += "ldc.i8 -1\n"
-                                   + "conv.r8\n"
-                                   + "mul";
-                pilha_tipos.push(tipo);
-            } else {
-                throw new SemanticError("Operacao invalida");
-            }
-        } catch (Exception e) {
+        this.codigo_fonte += "ldc.i8 -1\n"
+                + "conv.r8\n"
+                + "mul\n";
+        pilha_tipos.push(tipo);
 
-        }
-    }   
+    }
 }
