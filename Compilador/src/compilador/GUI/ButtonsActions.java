@@ -26,7 +26,7 @@ public class ButtonsActions {
         gui.statusBar.setText("Nenhum arquivo aberto");
     }
     
-    public void OpenFile() {
+    public String OpenFile() {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files (*.txt)", "txt");
         fileChooser.setFileFilter(filter);
@@ -39,14 +39,16 @@ public class ButtonsActions {
                 reader.close();
                 gui.statusBar.setText(currentFile.getPath());
                 gui.messageArea.setText("");
+                return currentFile.getPath();
             } catch (IOException e) {
                 gui.statusBar.setText("Erro ao abrir o arquivo: " + e.getMessage());
             }
             gui.messageArea.setText("");
         }
+        return "";
     }
     
-    public void SaveFile() {
+    public String SaveFile() {
         if (currentFile == null) {
             JFileChooser fileChooser = new JFileChooser();
             FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files (*.txt)", "txt");
@@ -66,9 +68,11 @@ public class ButtonsActions {
             writer.close();
             gui.statusBar.setText(currentFile.getPath());
             gui.messageArea.setText("");
-        } catch (IOException e) {
-            gui.statusBar.setText("Erro ao salvar o arquivo: " + e.getMessage());
+            return currentFile.getPath();
+        } catch (Exception e) {
+            gui.statusBar.setText("Erro ao salvar o arquivo");
         }
+        return "";
     }
     
     public void ShowTeam() {
